@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional
 public class BookmarkServiceImpl implements BookmarkService {
     @Autowired
     BookMarkRepository bookMarkRepository;
@@ -41,23 +40,18 @@ public class BookmarkServiceImpl implements BookmarkService {
     @Override
     @Transactional
     public List<PostDto> getAllBookMarkedPost(UserDto userDto) {
-        //  List< BookMark > bookMarkList=bookMarkRepository.findAll().stream().filter(B->B.getUser().getId()==userDto.getId()).toList();
-//        List< BookMark > bookMarkList=bookMarkRepository.findAll().stream().filter(B->B.getUser().getId()==userDto.getId()).toList();
-
-        List<BookMark> bookMarkList = cb.getAll(BookMark.class).stream().toList();
-        bookMarkList = bookMarkList.stream().filter(B -> B.getUser().getId() == userDto.getId()).toList();
-
-        List<Post> post = bookMarkList.stream().map(B -> B.getPost()).toList();
-        List<PostDto> postDtos = new ArrayList<>();
-        for (Post p : post) {
+        List< BookMark > bookMarkList=bookMarkRepository.findAll().stream().
+                filter(B->B.getUser().getId()==userDto.getId()).toList();
+        List<Post> post=bookMarkList.stream().map(B->B.getPost()).toList();
+        List<PostDto> postDtos=new ArrayList<>();
+        for(Post p:post){
             postDtos.add(PostConvertor.toPostDto(p));
         }
-        logger.info("Bookmarked Posts fetched : " + postDtos);
+        logger.info("Bookmarked Posts fetched : "+postDtos);
         return postDtos;
     }
 
     @Override
-//    public PostDto deleteBookMarkedPostByPostID(UserDto userDto, PostDto postDto) {
     public PostDto deleteBookMarkedPostByPostID(UserDto userDto, PostDto postDto) {
         List<BookMark> bookMarkList = cb.getAll(BookMark.class).stream().toList();
         bookMarkList = bookMarkList.stream().filter(s -> s.getPost().getId() == postDto.getId()).toList();
@@ -68,12 +62,11 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-//    public void addBookMarkedPost(PostDto postDto, UserDto userDto) {
-    public void addBookMarkedPost(PostDto postDto, UserDto userDto) {
-        BookMark bookMark = new BookMark();
+    public void addBookMarkedPost(PostDto postDto,UserDto userDto) {
+        BookMark bookMark=new BookMark();
         bookMark.setUser(UserConvertor.toUser(userDto));
         bookMark.setPost(PostConvertor.toPost(postDto));
-        logger.info("Bookmarked post added : " + postDto);
+        logger.info("Bookmarked post added : "+postDto);
         bookMarkRepository.save(bookMark);
     }
 
@@ -81,23 +74,19 @@ public class BookmarkServiceImpl implements BookmarkService {
     public boolean isBookMarked(UserDto userDto, long postId) {
         boolean isBookMarked = false;
         List<PostDto> bookMarkedPostsList = getAllBookMarkedPost(userDto);
-        isBookMarked = bookMarkedPostsList.stream().anyMatch(B -> B.getId() == postId);
-        logger.info("Bookmarked Check : " + isBookMarked + " for postId :" + postId + " user :" + userDto);
+        isBookMarked = bookMarkedPostsList.stream().anyMatch(B->B.getId()==postId);
+        logger.info("Bookmarked Check : "+isBookMarked+" for postId :"+postId+" user :"+userDto);
         return isBookMarked;
     }
 
     @Override
     public void changeBookMarkStatus(long postId, boolean isBookMarked, Principal principal) {
-
-        UserDto userDto = UserConvertor.toUserDto(cb.getResultWhereColumnEqual("email",principal.getName(),User.class).get(0));
-        //List<User> userList=cb.getResultWhereColumnEqual("user", principal.getName(), User.class);
-        //UserDto userDto=UserConvertor.toUserDto(userList.get(0));
-
-        if (isBookMarked) {
-            logger.info("Changed bookmarked status for post : " + postId + " user with email : " + principal.getName() + " as " + !isBookMarked);
-            this.deleteBookMarkedPostByPostID(userDto, postService.findPostById(postId));
-        } else {
-            logger.info("Changed bookmarked status for post : " + postId + " user with email : " + principal.getName() + " as " + !isBookMarked);
+        UserDto userDto = userService.findUserByEmail(principal.getName());
+        if(isBookMarked){
+            logger.info("Changed bookmarked status for post : "+postId+" user with email : "+principal.getName()+" as "+!isBookMarked);
+            this.deleteBookMarkedPostByPostID(userDto,postService.findPostById(postId));
+        }else {
+            logger.info("Changed bookmarked status for post : "+postId+" user with email : "+principal.getName()+" as "+!isBookMarked);
             this.addBookMarkedPost(postService.findPostById(postId), userDto);
         }
     }

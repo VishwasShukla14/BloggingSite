@@ -24,10 +24,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authorize) ->
-                        authorize.requestMatchers("/register/**").permitAll()
+                        authorize.requestMatchers("/register/**","/add-post/**","/save-post/**").permitAll()
+                                .requestMatchers("/js/**", "/css/**","/lib/**","/scss/**","/img/**").permitAll()
+                                .requestMatchers("admin/js/**", "admin/css/**","admin/lib/**","admin/scss/**","admin/img/**").hasAnyAuthority("ADMIN")
+                                .requestMatchers("user/js/**", "user/css/**","user/lib/**","user/scss/**","admin/img/**").hasAnyAuthority("USER")
                                 .requestMatchers("/").permitAll()
                                 .requestMatchers("/home").permitAll()
-                                .requestMatchers("user/getAllCategories").anonymous()
+                                .requestMatchers("/user/getAllCategories").anonymous()
                                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
                                 .requestMatchers("/user/**").hasAnyAuthority("USER","ADMIN")
                 ).formLogin(

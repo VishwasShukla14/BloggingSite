@@ -1,6 +1,5 @@
 package com.training.bloggingsite.utils;
 
-import com.training.bloggingsite.entities.Post;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;

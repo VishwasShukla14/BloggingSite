@@ -21,7 +21,7 @@ public class GlobalExceptionHandling {
         model.addAttribute("error",e.getMessage());
         model.addAttribute("roleData",new RoleDto());
         logger.error(e.getMessage());
-        return "add-role";
+        return "redirect:/admin/view-role";
     }
 
     @ExceptionHandler(value = UserEmailAlreadyExistsException.class)

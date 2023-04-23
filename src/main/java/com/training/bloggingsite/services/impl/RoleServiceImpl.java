@@ -35,7 +35,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleDto addRole(RoleDto roleDto) {
 
-        List<Role> checkRoleInDB = cb.getResultWhereColumnEqual("name",roleDto.getName(), Role.class);
+        List<Role> checkRoleInDB = cb.getResultWhereColumnEqual("name",roleDto.getName().toUpperCase(), Role.class);
 
         if (checkRoleInDB.isEmpty()) {
             Role roleToBeInserted = RoleConvertor.toRole(roleDto);

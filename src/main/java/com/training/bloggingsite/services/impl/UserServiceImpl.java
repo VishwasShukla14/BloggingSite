@@ -96,7 +96,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserRole(long id, String role) {
+    public void updateUserRole(Long id, String role) {
 
         List<User> user = cb.getResultWhereColumnEqual("id", id,User.class);
 

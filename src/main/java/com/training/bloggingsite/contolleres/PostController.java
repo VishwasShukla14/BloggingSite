@@ -5,6 +5,7 @@ import com.training.bloggingsite.dtos.CommentDto;
 import com.training.bloggingsite.dtos.PostDto;
 import com.training.bloggingsite.dtos.UserDto;
 import com.training.bloggingsite.services.interfaces.*;
+import com.training.bloggingsite.utils.FileFinder;
 import com.training.bloggingsite.utils.UserConvertor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,10 +74,7 @@ public class PostController {
         ModelAndView modelAndView = new ModelAndView("admin-view-all-post");
         modelAndView.addObject("currentPage", pageNo);
         int count = postService.findTotalPages("isVerified", false);
-        System.out.println(count);
-        int count3 = (int) Math.ceil(count / pageLimit);
-        System.out.println("Admin/" + count3);
-//        modelAndView.addObject("totalPages", postService.findTotalPages("pageNo",5));
+
         modelAndView.addObject("totalPages", count);
 
         modelAndView.addObject("postData", postList);
@@ -170,18 +168,27 @@ public class PostController {
     }
 
     // Add new Post
-    @GetMapping("user/add-post")
-    public ModelAndView addPost() {
+    @GetMapping("add-post")
+    public ModelAndView addPost(Principal principal) {
         PostDto postDto = new PostDto();
-        ModelAndView modelAndView = new ModelAndView("add-post");
+        ModelAndView mav = new ModelAndView("admin/add-post");
         List<CategoryDto> categoryDtos = this.categoryService.findAllCategoryIncludeChildren();
-        modelAndView.addObject("categories", categoryDtos);
-        modelAndView.addObject("postdto", postDto);
-        return modelAndView;
+        mav.addObject("categories", categoryDtos);
+        mav.addObject("postdto", postDto);
+        UserDto userDto = this.userService.findUserByEmail(principal.getName());
+        mav.addObject("name", userDto.getName());
+
+        String[] name = principal.getName().split("@");
+        String profileImageName = name[0] + ".jpg";
+
+        if (FileFinder.checkProfileInImg(profileImageName)) mav.addObject("profile", "/img/" + profileImageName);
+        else mav.addObject("profile", "/img/" + "default.jpg");
+
+        return mav;
     }
 
     // Save New post.
-    @PostMapping("user/save-post")
+    @PostMapping("save-post")
     public String saveThePost(@ModelAttribute PostDto post, Principal principal) {
         return this.postService.savePost(post, principal.getName(), post.getCategoryDto().getName());
     }

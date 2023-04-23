@@ -40,7 +40,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public String savePost(PostDto post, String userEmail, String categoryName) {
         List<User> user = this.cb.getResultWhereColumnEqual("email",userEmail,User.class);
-//        Category category = this.categoryRepository.findByName(categoryName);
         List<Category> category = cb.getResultWhereColumnEqual("name", categoryName, Category.class);
         Post postToBeInserted = PostConvertor.toPost(post);
         postToBeInserted.setCategory(category.get(0));
@@ -49,13 +48,11 @@ public class PostServiceImpl implements PostService {
         if (roles.get(0).getName().equals(DefaultValue.ADMIN)) {
             postToBeInserted.setVerified(true);
              this.postRepository.save(postToBeInserted);
-//            entityManager.persist(postToBeInserted);
             logger.info("Post created as : " + postToBeInserted.getTitle() + " by " + user.get(0).getName());
             return "redirect:/admin/home";
         } else {
             postToBeInserted.setVerified(false);
                this.postRepository.save(postToBeInserted);
-//            entityManager.persist(postToBeInserted);
             logger.info("Post created as : " + postToBeInserted.getTitle() + " by " + user.get(0).getName());
             return "redirect:/user/home";
         }
@@ -63,9 +60,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto findPostById(long id) {
-
         logger.info("find post by id");
-
         return PostConvertor.toPostDto(cb.getResultWhereColumnEqual("id", id, Post.class).get(0));
 
     }
@@ -74,12 +69,6 @@ public class PostServiceImpl implements PostService {
     public List<PostDto> findAllPostByUser(User user) {
 
         List<PostDto> postDtos = new ArrayList<>();
-        //logger.info("fetching ....");
-  //      List<Post> postByUserId = postRepository.findPostByUser(user);
-//        logger.info(user.getId()+"fetched with jpa");
-        //List<Post> postByUserId = criteriaQueryHelper.getAllDataWhere("user",user);
-//        System.out.println("this"+postByUserId3.toString());
-
         List<Post> postByUserId= cb.getResultWhereColumnEqual("user",user,Post.class);
         for (Post post : postByUserId)
             postDtos.add(PostConvertor.toPostDto(post));
@@ -88,7 +77,7 @@ public class PostServiceImpl implements PostService {
         return postDtos;
     }
 
-    @Override//my-post//my-post
+    @Override
     public void deletePost(long id) {
         this.postRepository.deleteById(id);
         logger.info("Post Deleted with id  : " + id);
@@ -97,27 +86,14 @@ public class PostServiceImpl implements PostService {
     @Override
     public void updateVerification(long postId, boolean isVerified) {
         Post post = this.postRepository.findById(postId).get();
-       //Post post=cb.getResultWhereColumnEqual("id",postId)
         this.postRepository.updateVerificationStatus(postId, !isVerified);
-
-
-
-
-       // logger.info("Post verified as : " + !isVerified + " for id " + post.get(0).getId());
     }
 
     @Override
     public <T> List<PostDto> findPaginatedPosts(int offset, int limit,String columnName,T value) {
-      //  Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("title"));
-
         List<PostDto> postDtos = new ArrayList<>();
-
-       // List<Post> post = postRepository.findAll(pageable).getContent();
         List<Post> post = cb.getPaginatedData(offset,limit,"isVerified",value,Post.class);
-       // System.out.println(criteriaQueryHelper.getPaginatedData(0,5,"is_verified",true));
-
         for (Post p : post) {
-
             postDtos.add(PostConvertor.toPostDto(p));
         }
         return postDtos;
@@ -125,12 +101,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public <T> int findTotalPages(String columnName,T value) {
-//        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-//        return postRepository.findAll(pageable).getTotalPages();
-//
-//
-
-       return cb.getCount(columnName,value,Post.class);
+        return cb.getCount(columnName,value,Post.class);
     }
 
 

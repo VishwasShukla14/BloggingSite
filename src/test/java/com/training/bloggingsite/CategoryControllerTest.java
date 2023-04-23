@@ -40,13 +40,13 @@ public class CategoryControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    @WithMockUser(username = "admin@admin.com",password = "Mind@123",roles = {"ADMIN"})
+    @WithMockUser
     public void testGetCategory() throws Exception {
         Category category = new Category();
         category.setId(1);
         category.setName("Parent");
         List<Category> categories = List.of(category);
-        when(categoryRepository.findAll()).thenReturn(categories);
+        when(cb.getAll(Category.class)).thenReturn(categories);
 
         this.mockMvc.perform(get("/admin/view-categories")).andExpect(status().isOk());
     }
